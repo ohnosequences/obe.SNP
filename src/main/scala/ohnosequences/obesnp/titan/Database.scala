@@ -78,8 +78,9 @@ object Database {
 
       val snpLabel = mgmt.makeVertexLabel(TitanSNP.label).make()
       val snpName = mgmt.makePropertyKey(TitanSNP.nameProperty).dataType(classOf[String]).cardinality(Cardinality.SINGLE).make()
+      val snpFake = mgmt.makePropertyKey(TitanSNP.fakeProperty).dataType(classOf[String]).cardinality(Cardinality.SINGLE).make()
       mgmt.buildIndex("snpBy" + TitanSNP.nameProperty, classOf[Vertex]).addKey(snpName).indexOnly(snpLabel).buildCompositeIndex()
-
+      mgmt.buildIndex("snpByFake", classOf[Vertex]).addKey(snpFake).indexOnly(snpLabel).buildCompositeIndex()
 
       mgmt.commit()
     }

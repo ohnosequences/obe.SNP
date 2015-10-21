@@ -9,21 +9,35 @@ import com.thinkaurelius.titan.core.TitanGraph
 
 import scala.collection.mutable
 
+trait AnySNPInfo
+
+case class SNPInfo(riskAllele: String, nearsetGene: String, se: Double) extends AnySNPInfo
+
 object Import {
 
 
+  def obesitySNPs(file: File): Map[String, SNPInfo] = {
+    io.Source.fromFile(file).getLines().map { line =>
+      val raw = line.trim.split("\\s+")
+      val name = raw(0)
+      val nearestGene = raw(2)
+      val riskAllele = raw(3)
+      val se = raw(5).replace(',', '.').toDouble
+      (name, SNPInfo(riskAllele, nearestGene, se))
+    }.toMap
+  }
 
-  def ucscSNPcommon(snp142CommonFile: File, graph: TitanGraph, reference: TitanReference): Unit = {
+
+  def ucscSNPcommon[SI <: SNPInfo](snp142CommonFile: File, graph: TitanGraph, reference: TitanReference, snps: Map[String, SI]): Unit = {
     val source = io.Source.fromInputStream(new GZIPInputStream(new FileInputStream(snp142CommonFile)))
     var counter = 0
 
 
-    source.getLines().take(1000000).foreach { line =>
+    source.getLines().foreach { line =>
       val raw = line.trim.split('\t')
       if(raw.length < 10) {
         print("warning: couldn't parse line " + line)
-      } else {
-
+      } else if (snps.contains(raw(4))) {
 
         val chromosome = GlobalBench.bench.bench("queryChrByName"){
           reference.getOrCreateChromosome(raw(1))

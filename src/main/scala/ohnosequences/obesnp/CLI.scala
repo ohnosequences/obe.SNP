@@ -51,6 +51,19 @@ object CLI {
         database.shutdown()
       }
 
+      case "snps" :: "count" :: Nil => {
+        val database = Database.create(delete = false, getWorkingDirectory)
+        val snps = database
+          .graph
+          .query()
+          .has("label", TitanSNP.label)
+          .has(TitanSNP.fakeProperty, "fake")
+          .vertices().iterator().toList
+
+        println(snps.size)
+        database.shutdown()
+      }
+
       case "help" :: Nil => printUsage()
 
       case _ => printUsage()

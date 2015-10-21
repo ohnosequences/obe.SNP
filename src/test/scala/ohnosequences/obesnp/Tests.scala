@@ -16,10 +16,13 @@ class Tests {
     if(!database.isModuleImported(HG38dbSNP)) {
       println("error: HG38dbSNP must be imported for this test")
     } else {
-      val snpName = "rs555500075"
+      val snpName = "rs9491696"
       val snp = TitanSNP.byName(graph, snpName)
       assertEquals(snpName, snp.map(_.name).getOrElse(""))
+      assertEquals("fake", snp.map(_.vertex.getProperty[String](TitanSNP.fakeProperty)).getOrElse(""))
     }
   }
+
+
 
 }

@@ -19,6 +19,7 @@ class TitanSNP(graph: TitanGraph, val vertex: Vertex) extends SNP {
 object TitanSNP {
   val label = "SNP"
   val nameProperty = "SNP_NAME"
+  val fakeProperty = "SNP_FAKE"
 
   def byName(graph: TitanGraph, name: String): Option[TitanSNP] = {
     val it = graph.query()
@@ -36,6 +37,8 @@ object TitanSNP {
   def create(graph: TitanGraph, name: String): TitanSNP = {
     val vertex = graph.addVertexWithLabel(TitanSNP.label)
     vertex.setProperty(TitanSNP.nameProperty, name)
+    vertex.setProperty(TitanSNP.fakeProperty, "fake")
+
     new TitanSNP(graph, vertex)
   }
 

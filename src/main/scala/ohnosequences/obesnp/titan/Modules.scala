@@ -27,10 +27,12 @@ case object HG38dbSNP extends Module("hg38dbSNP") {
 
   override def install0(workingDirectory: File): Unit = {
     val database = Database.create(delete = false, workingDirectory)
-    val file= new File(workingDirectory, "hg38.dbSNP.txt.gz")
+    val file = new File(workingDirectory, "hg38.dbSNP.txt.gz")
+    val snps = new File(workingDirectory, "snps.txt")
     Download.downloadHG38dbSNP(file)
     val reference = TitanReference.getOrCreateReference(database.graph, "hg38")
-    Import.ucscSNPcommon(file, database.graph, reference)
+    val snpsInfo = Import.obesitySNPs(snps)
+    Import.ucscSNPcommon(file, database.graph, reference, snpsInfo)
   }
 
 }
