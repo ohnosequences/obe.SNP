@@ -35,7 +35,7 @@ the input file.
 
 ### Import
 
-`obe import dbSNP hg39` -- download and import dbSNP for hg19 positions.
+`obe import dbSNP hg19` -- download and import dbSNP for hg19 positions.
 
 `obe import dbSNP hg38` -- download and import dbSNP for hg38 positions.
 
