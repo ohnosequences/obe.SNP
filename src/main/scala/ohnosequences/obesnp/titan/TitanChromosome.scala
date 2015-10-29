@@ -22,7 +22,7 @@ class TitanChromosome(graph: TitanGraph, val vertex: Vertex) extends Chromosome 
 
 
   override def toString: String = {
-    "ch" + name
+    name
   }
 
   def getGenes: List[Gene] = {
@@ -45,6 +45,40 @@ class TitanChromosome(graph: TitanGraph, val vertex: Vertex) extends Chromosome 
       pos.gene
     }
 
+  }
+
+  def getSNP(start: Long): Option[TitanSNP] = {
+    vertex.query()
+      .labels(TitanSNPPosition.label)
+      .direction(Direction.OUT)
+      .has(TitanSNPPosition.startProperty, start)
+      .edges().headOption.map { r =>
+      val v = r.getVertex(Direction.IN)
+      new TitanSNP(graph, v)
+    }
+  }
+
+  def getSNPs: List[TitanSNP] = {
+    vertex.query()
+      .labels(TitanSNPPosition.label)
+      .direction(Direction.OUT)
+      .edges().toList.map { r =>
+     // println("start: " + r.getProperty[java.lang.Long](TitanSNPPosition.startProperty))
+      val v = r.getVertex(Direction.IN)
+      val snp = new TitanSNP(graph, v)
+      //println(snp.name)
+      snp
+    }
+  }
+
+  def getSNPPositions: List[TitanSNPPosition] = {
+    vertex.query()
+      .labels(TitanSNPPosition.label)
+      .direction(Direction.OUT)
+      .edges().toList.map { e =>
+      val snp = new TitanSNPPosition(graph, e)
+      snp
+    }
   }
 
   def addSNP(start: Long, referenceValue: String, snp: TitanSNP): Unit = {

@@ -9,6 +9,8 @@ import ohnosequences.obesnp._
 
 object Database {
 
+
+
   def create(delete: Boolean, workingDirectory: File): Database = {
     val dbLocation = new File(workingDirectory, "database")
 
@@ -89,6 +91,10 @@ object Database {
 }
 
 class Database(val graph: TitanGraph) {
+
+  def hg38 = TitanReference.getOrCreateReference(graph, "hg38")
+
+  def hg19 = TitanReference.getOrCreateReference(graph, "hg19")
 
   def shutdown(): Unit = {
     graph.commit()

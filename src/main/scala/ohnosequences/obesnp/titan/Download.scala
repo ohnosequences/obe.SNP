@@ -26,5 +26,10 @@ object Download {
     download("hg38dbSNP", url, file, false)
   }
 
+  def downloadHG19dbSNP(file: File): Unit = {
+    val url = new URL("http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/snp142Common.txt.gz")
+    download("hg19dbSNP", url, file, false)
+  }
+
 
 }

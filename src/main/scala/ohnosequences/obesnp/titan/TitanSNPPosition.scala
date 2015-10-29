@@ -1,6 +1,7 @@
 package ohnosequences.obesnp.titan
 
-import com.tinkerpop.blueprints.Edge
+import com.thinkaurelius.titan.core.TitanGraph
+import com.tinkerpop.blueprints.{Direction, Edge}
 import ohnosequences.obesnp.SNPPositon
 
 /**
@@ -12,7 +13,7 @@ object TitanSNPPosition {
   val referenceValueProperty = "SNP_POS_REF"
 }
 
-class TitanSNPPosition(edge: Edge) extends SNPPositon {
+class TitanSNPPosition(graph: TitanGraph, edge: Edge) extends SNPPositon {
 
   override def startPosition: Long = {
     edge.getProperty(TitanSNPPosition.startProperty)
@@ -20,6 +21,13 @@ class TitanSNPPosition(edge: Edge) extends SNPPositon {
 
   override def referenceValue: String = {
     edge.getProperty(TitanSNPPosition.referenceValueProperty)
+  }
 
+  def snp: TitanSNP = {
+    new TitanSNP(graph, edge.getVertex(Direction.IN))
+  }
+
+  def chromosome: TitanChromosome = {
+    new TitanChromosome(graph, edge.getVertex(Direction.OUT))
   }
 }

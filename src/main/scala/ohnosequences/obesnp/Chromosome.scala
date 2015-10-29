@@ -5,5 +5,5 @@ trait Chromosome {
 
   def getGenes: List[Gene]
 
-  //def getSNPs: List[SNP]
+  def getSNPs: List[SNP]
 }

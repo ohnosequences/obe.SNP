@@ -24,11 +24,16 @@ libraryDependencies += "com.thinkaurelius.titan" % "titan-berkeleyje" % "0.5.3"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.0" % "test"
 
+libraryDependencies += "com.github.samtools" % "htsjdk" % "1.140"
+
+
 dependencyOverrides += "commons-codec" % "commons-codec" % "1.6"
 
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "2.1.2"
 
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.2"
+
+dependencyOverrides += "org.apache.ant" % "ant" % "1.8.3"
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "40", "-minSuccessfulTests", "10", "-workers", "1", "-verbosity", "1")
 

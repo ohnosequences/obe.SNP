@@ -27,11 +27,18 @@ object TitanReference {
     val vertex = titan.query().has("label", TitanReference.label).has(TitanReference.nameProperty, id).limit(1).vertices().headOption
     vertex.map(new TitanReference(titan, id, _))
   }
+
+
+
+
 }
 
 class TitanReference(graph: TitanGraph, id: String, val vertex: Vertex) extends Reference {
 
-  def getChromosome(name: String): Option[TitanChromosome] = {
+  def getChromosome(rawName: String): Option[TitanChromosome] = {
+
+    val name = "chr" + rawName.replace("chr", "").replace("ch", "")
+
     val iterator = vertex
       .query()
       .labels(TitanChromosomeEdge.label)
@@ -42,6 +49,7 @@ class TitanReference(graph: TitanGraph, id: String, val vertex: Vertex) extends 
     if (iterator.hasNext) {
       Some(new TitanChromosome(graph, iterator.next()))
     } else {
+      println("couldn't find chromosome " + rawName)
       None
     }
   }
@@ -50,10 +58,13 @@ class TitanReference(graph: TitanGraph, id: String, val vertex: Vertex) extends 
     getChromosome(name).getOrElse(createChromosome(name))
   }
 
-  override def getChromosomes: List[Chromosome] = {
+  override def getChromosomes: List[TitanChromosome] = {
     vertex.query()
-      .labels(TitanChromosome.label)
-      .direction(Direction.OUT).vertices().toList
+      .labels(TitanChromosomeEdge.label)
+      .direction(Direction.OUT)
+      .vertices()
+      .iterator()
+      .toList
       .map(new TitanChromosome(graph, _))
   }
 

@@ -1,7 +1,7 @@
 package ohnosequences.obesnp.titan
 
 import com.thinkaurelius.titan.core.TitanGraph
-import com.tinkerpop.blueprints.Vertex
+import com.tinkerpop.blueprints.{Direction, Vertex}
 
 
 import ohnosequences.obesnp.SNP
@@ -13,6 +13,11 @@ class TitanSNP(graph: TitanGraph, val vertex: Vertex) extends SNP {
 
   override def name: String = {
     vertex.getProperty(TitanSNP.nameProperty)
+  }
+
+  def position: TitanSNPPosition = {
+    val edge = vertex.getEdges(Direction.IN, TitanSNPPosition.label).iterator().next()
+    new TitanSNPPosition(graph, edge)
   }
 }
 
