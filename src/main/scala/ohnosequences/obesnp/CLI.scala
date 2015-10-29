@@ -70,72 +70,53 @@ object CLI {
         database.shutdown()
       }
 
-      case "vcf" :: "extract" :: fileName :: Nil => {
+      case "extract" :: ref :: fileName :: Nil => {
         val database = Database.create(delete = false, getWorkingDirectory)
         val vcfFile = new File(getWorkingDirectory, fileName)
-        val contexts = Extract.fromVCF(database.hg38, vcfFile, OneThousandGenomes)
-        println(contexts.size)
-        database.shutdown()
-      }
-
-      case "vcf" :: "extract" :: "hg19" :: fileName :: Nil => {
-        val database = Database.create(delete = false, getWorkingDirectory)
-        val vcfFile = new File(getWorkingDirectory, fileName)
-        val contexts = Extract.fromVCF(database.hg19, vcfFile, OneThousandGenomes)
-        println(contexts.size)
-        database.shutdown()
-      }
-
-      case "vcf" :: "merge" :: directory :: Nil => {
-        println(args)
-      }
-
-      case "vcf" :: "filter" :: fileName :: Nil => {
-        val reader = new VCFFileReader(new File(getWorkingDirectory, fileName), false)
-        val resultFile = new File(getWorkingDirectory, fileName.replace(".vcf", ".filtered.vcf"))
-        val res = new PrintWriter(resultFile)
-        val writer  = new VCFEncoder(reader.getFileHeader, false, false)
-
-        reader.getFileHeader.getMetaDataInInputOrder.foreach { line =>
-          res.println("##" + line.toString)
+        val reference = if (ref.equals("hg38")) {
+          database.hg38
+        } else {
+          database.hg19
         }
-        res.print("#")
-        reader.getFileHeader.getHeaderFields.foreach { field =>
-          res.print(field.toString + "\t")
-        }
-        res.print("FORMAT\t")
-        reader.getFileHeader.getGenotypeSamples.foreach { field =>
-          res.print(field + "\t")
-        }
-        res.println()
-
-
-        val database = Database.create(delete = false, getWorkingDirectory)
-
-        val hg38 = TitanReference.getOrCreateReference(database.graph, "hg38")
-
-        var counter = 0
-
-        reader.iterator().foreach { ctx =>
-
-          counter += 1
-
-          if (counter % 1000 == 0) {
-            println(counter + " lines processed")
-          }
-
-//          val s = writer.encode(ctx)
-//          res.println(s)
-
-          hg38.getChromosome(ctx.getContig).foreach { chr =>
-            chr.getSNP(ctx.getStart - 1).foreach { snp =>
-              val s = writer.encode(ctx)
-              res.println(s)
-            }
-          }
-        }
-        res.close()
+        val (reader, contexts) = Extract.fromVCF(reference, vcfFile, OneThousandGenomes)
         reader.close()
+        println(contexts.size)
+        database.shutdown()
+      }
+
+      case "extract" :: fileName :: Nil => {
+        val database = Database.create(delete = false, getWorkingDirectory)
+        val vcfFile = new File(getWorkingDirectory, fileName)
+
+        val (reader, contexts) = Extract.fromVCF(database.hg19, vcfFile, OneThousandGenomes)
+        reader.close()
+        println(contexts.size)
+        database.shutdown()
+      }
+
+
+      case "filter" :: fileName :: Nil => {
+        val database = Database.create(delete = false, getWorkingDirectory)
+        val vcfFile = new File(getWorkingDirectory, fileName)
+        val (reader, contexts) = Extract.fromVCF(database.hg19, vcfFile, OneThousandGenomes)
+        val resultFile = new File(vcfFile.getAbsolutePath.replace(".vcf", ".filt.vcf"))
+        Extract.writeVCF(reader, contexts, resultFile)
+        database.shutdown()
+      }
+
+      case "filter" :: ref :: fileName :: Nil => {
+        val database = Database.create(delete = false, getWorkingDirectory)
+        val vcfFile = new File(getWorkingDirectory, fileName)
+
+        val reference = if (ref.equals("hg38")) {
+          database.hg38
+        } else {
+          database.hg19
+        }
+
+        val (reader, contexts) = Extract.fromVCF(reference, vcfFile, OneThousandGenomes)
+        val resultFile = new File(vcfFile.getAbsolutePath.replace(".vcf", ".filt.vcf"))
+        Extract.writeVCF(reader, contexts, resultFile)
         database.shutdown()
       }
 
