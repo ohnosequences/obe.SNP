@@ -70,7 +70,7 @@ object CLI {
         database.shutdown()
       }
 
-      case "extract" :: ref :: fileName :: Nil => {
+      case "show" :: ref :: fileName :: Nil => {
         val database = Database.create(delete = false, getWorkingDirectory)
         val vcfFile = new File(getWorkingDirectory, fileName)
         val reference = if (ref.equals("hg38")) {
@@ -84,7 +84,7 @@ object CLI {
         database.shutdown()
       }
 
-      case "extract" :: fileName :: Nil => {
+      case "show" :: fileName :: Nil => {
         val database = Database.create(delete = false, getWorkingDirectory)
         val vcfFile = new File(getWorkingDirectory, fileName)
 
@@ -95,7 +95,7 @@ object CLI {
       }
 
 
-      case "filter" :: fileName :: Nil => {
+      case "extract" :: fileName :: Nil => {
         val database = Database.create(delete = false, getWorkingDirectory)
         val vcfFile = new File(getWorkingDirectory, fileName)
         val (reader, contexts) = Extract.fromVCF(database.hg19, vcfFile, OneThousandGenomes)
@@ -104,7 +104,7 @@ object CLI {
         database.shutdown()
       }
 
-      case "filter" :: ref :: fileName :: Nil => {
+      case "extract" :: ref :: fileName :: Nil => {
         val database = Database.create(delete = false, getWorkingDirectory)
         val vcfFile = new File(getWorkingDirectory, fileName)
 
