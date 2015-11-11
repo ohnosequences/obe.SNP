@@ -1,6 +1,6 @@
 package ohnosequences.obesnp
 
-import java.io.{PrintWriter, File}
+import java.io.{FilenameFilter, PrintWriter, File}
 import com.thinkaurelius.titan.core.TitanVertex
 import htsjdk.variant.vcf.{VCFEncoder, VCFFileReader}
 import ohnosequences.obesnp.titan._
@@ -98,25 +98,36 @@ object CLI {
       case "extract" :: fileName :: Nil => {
         val database = Database.create(delete = false, getWorkingDirectory)
         val vcfFile = new File(getWorkingDirectory, fileName)
-        val (reader, contexts) = Extract.fromVCF(database.hg19, vcfFile, OneThousandGenomes)
-        val resultFile = new File(vcfFile.getAbsolutePath.replace(".vcf", ".filt.vcf"))
-        Extract.writeVCF(reader, contexts, resultFile)
+        if (!vcfFile.isDirectory) {
+          Extract.extractAndWrite(database.hg19, vcfFile, OneThousandGenomes)
+        } else {
+          val vcfFiles = vcfFile.listFiles(new FilenameFilter {
+            override def accept(dir: File, name: String): Boolean = name.endsWith(".vcf")
+          }).toList.foreach { file =>
+            Extract.extractAndWrite(database.hg19, vcfFile, OneThousandGenomes)
+          }
+        }
         database.shutdown()
       }
 
       case "extract" :: ref :: fileName :: Nil => {
         val database = Database.create(delete = false, getWorkingDirectory)
-        val vcfFile = new File(getWorkingDirectory, fileName)
 
         val reference = if (ref.equals("hg38")) {
           database.hg38
         } else {
           database.hg19
         }
-
-        val (reader, contexts) = Extract.fromVCF(reference, vcfFile, OneThousandGenomes)
-        val resultFile = new File(vcfFile.getAbsolutePath.replace(".vcf", ".filt.vcf"))
-        Extract.writeVCF(reader, contexts, resultFile)
+        val vcfFile = new File(getWorkingDirectory, fileName)
+        if (!vcfFile.isDirectory) {
+          Extract.extractAndWrite(database.hg19, vcfFile, OneThousandGenomes)
+        } else {
+          val vcfFiles = vcfFile.listFiles(new FilenameFilter {
+            override def accept(dir: File, name: String): Boolean = name.endsWith(".vcf")
+          }).toList.foreach { file =>
+            Extract.extractAndWrite(database.hg19, vcfFile, OneThousandGenomes)
+          }
+        }
         database.shutdown()
       }
 
